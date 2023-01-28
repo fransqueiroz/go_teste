@@ -55,6 +55,12 @@ func (c *userControllerImpl) PostUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user, err = c.userRepository.Save(user)
+
+	if err != nil {
+		utils.WriteError(w, err, http.StatusUnprocessableEntity)
+		return
+	}
+
 	if err != nil {
 		utils.WriteError(w, err, http.StatusUnprocessableEntity)
 		return
@@ -151,6 +157,5 @@ func (c *userControllerImpl) DeleteUser(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// buildDeleteResponse(w, user_id)
 	utils.WriteAsJson(w, "{}")
 }

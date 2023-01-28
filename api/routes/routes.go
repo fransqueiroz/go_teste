@@ -18,3 +18,10 @@ func InstallUserRoute(router *mux.Router, userRoutes UserRoutes) {
 		router.HandleFunc(route.Path, route.Handler).Methods(route.Method)
 	}
 }
+
+func InstallWalletRoute(router *mux.Router, walletRoutes WalletRoutes) {
+	allRoutes := walletRoutes.Routes()
+	for _, route := range allRoutes {
+		router.HandleFunc(route.Path, route.Handler).Methods(route.Method)
+	}
+}

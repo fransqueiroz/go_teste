@@ -29,12 +29,13 @@ func Run() {
 	userController := controllers.NewUserController(userRepository)
 	userRoutes := routes.NewUserRoutes(userController)
 
+	walletRepository := repository.NewWalletRepository(db)
+	walletController := controllers.NewWalletController(walletRepository)
+	walletRoutes := routes.NewWalletRoutes(walletController)
+
 	router := mux.NewRouter().StrictSlash(true)
 	routes.InstallUserRoute(router, userRoutes)
-
-	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello Teste"))
-	})
+	routes.InstallWalletRoute(router, walletRoutes)
 
 	headers := handlers.AllowedHeaders([]string{"Content-Type", "X-Request", "Location"})
 	methods := handlers.AllowedHeaders([]string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete})
