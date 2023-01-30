@@ -21,11 +21,12 @@ type UserController interface {
 }
 
 type userControllerImpl struct {
-	userRepository repository.UserRepository
+	userRepository   repository.UserRepository
+	walletRepository repository.WalletRepository
 }
 
-func NewUserController(userRepository repository.UserRepository) *userControllerImpl {
-	return &userControllerImpl{userRepository}
+func NewUserController(userRepository repository.UserRepository, walletRepository repository.WalletRepository) *userControllerImpl {
+	return &userControllerImpl{userRepository, walletRepository}
 }
 
 func (c *userControllerImpl) PostUser(w http.ResponseWriter, r *http.Request) {
@@ -54,7 +55,29 @@ func (c *userControllerImpl) PostUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	query := "email = '" + user.Email + "'"
+	user_response, err := c.userRepository.GetUserIfExist(query)
+
+	if user.Email == user_response.Email {
+		utils.WriteError(w, err, http.StatusBadRequest)
+		return
+	}
+
+	query = "cpf = '" + user.CPF + "'"
+	user_response, err = c.userRepository.GetUserIfExist(query)
+
+	if user.CPF == user_response.CPF {
+		utils.WriteError(w, err, http.StatusBadRequest)
+		return
+	}
+
 	user, err = c.userRepository.Save(user)
+
+	walletStruct := &models.Wallet{}
+
+	walletStruct.User_id = user.ID
+
+	_, err = c.walletRepository.Save(walletStruct)
 
 	if err != nil {
 		utils.WriteError(w, err, http.StatusUnprocessableEntity)

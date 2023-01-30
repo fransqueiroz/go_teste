@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"time"
 
 	"github.com/fransqueiroz/go_teste/api/models"
@@ -11,6 +12,7 @@ import (
 type UserRepository interface {
 	Save(*models.User) (*models.User, error)
 	Find(uint64) (*models.User, error)
+	GetUserIfExist(string) (*models.User, error)
 	FindAll() ([]*models.User, error)
 	Update(*models.User) error
 	Delete(uint64) error
@@ -31,6 +33,7 @@ func (r *userRepositoryImpl) Save(user *models.User) (*models.User, error) {
 		tx.Rollback()
 		return nil, err
 	}
+
 	return user, tx.Commit().Error
 }
 
@@ -74,4 +77,13 @@ func (r *userRepositoryImpl) Delete(user_id uint64) error {
 		return err
 	}
 	return tx.Commit().Error
+}
+
+func (r *userRepositoryImpl) GetUserIfExist(query string) (*models.User, error) {
+	user := &models.User{}
+	err := r.db.Debug().Model(&models.User{}).Where(query).Find(user).Error
+	if user == user {
+		err = errors.New("User exists")
+	}
+	return user, err
 }

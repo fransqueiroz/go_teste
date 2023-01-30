@@ -25,17 +25,26 @@ func Run() {
 		defer db.Close()
 	}
 
+	//Repositorys
 	userRepository := repository.NewUserRepository(db)
-	userController := controllers.NewUserController(userRepository)
-	userRoutes := routes.NewUserRoutes(userController)
-
 	walletRepository := repository.NewWalletRepository(db)
+	transactionRepository := repository.NewTransactionRepository(db)
+
+	//Controllers
+	userController := controllers.NewUserController(userRepository, walletRepository)
 	walletController := controllers.NewWalletController(walletRepository)
+	transactionController := controllers.NewTransactionController(transactionRepository, userRepository, walletRepository)
+
+	//Routes
+	userRoutes := routes.NewUserRoutes(userController)
 	walletRoutes := routes.NewWalletRoutes(walletController)
+	transactionRoutes := routes.NewTransactionRoutes(transactionController)
 
 	router := mux.NewRouter().StrictSlash(true)
+
 	routes.InstallUserRoute(router, userRoutes)
 	routes.InstallWalletRoute(router, walletRoutes)
+	routes.InstallTransactionRoute(router, transactionRoutes)
 
 	headers := handlers.AllowedHeaders([]string{"Content-Type", "X-Request", "Location"})
 	methods := handlers.AllowedHeaders([]string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete})

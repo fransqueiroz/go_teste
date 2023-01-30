@@ -19,7 +19,6 @@ type WalletController interface {
 	GetWallets(http.ResponseWriter, *http.Request)
 	PutWallet(http.ResponseWriter, *http.Request)
 	DeleteWallet(http.ResponseWriter, *http.Request)
-	createFirstWallet(user_id uint64)
 }
 
 type walletControllerImpl struct {
