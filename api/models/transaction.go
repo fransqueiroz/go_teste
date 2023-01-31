@@ -1,5 +1,9 @@
 package models
 
+func ValidateTransaction(transaction Transaction, user User, wallet Wallet) error {
+	return nil
+}
+
 type Transaction struct {
 	Model
 	Value float64 `gorm:"default:0.00" json:"value"`

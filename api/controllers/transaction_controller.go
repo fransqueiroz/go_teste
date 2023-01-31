@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/fransqueiroz/go_teste/api/models"
-	"github.com/fransqueiroz/go_teste/api/repository"
+	"github.com/fransqueiroz/go_teste/api/services"
 	"github.com/fransqueiroz/go_teste/api/utils"
 	"github.com/gorilla/mux"
 )
@@ -22,13 +22,11 @@ type TransactionController interface {
 }
 
 type transactionControllerImpl struct {
-	transactionRepository repository.TransactionRepository
-	userRepository        repository.UserRepository
-	walletRepository      repository.WalletRepository
+	transactionService services.TransactionService
 }
 
-func NewTransactionController(transactionRepository repository.TransactionRepository, userRepository repository.UserRepository, walletRepository repository.WalletRepository) *transactionControllerImpl {
-	return &transactionControllerImpl{transactionRepository, userRepository, walletRepository}
+func NewTransactionController(transactionService services.TransactionService) *transactionControllerImpl {
+	return &transactionControllerImpl{transactionService}
 }
 
 func (c *transactionControllerImpl) PostTransaction(w http.ResponseWriter, r *http.Request) {
@@ -50,12 +48,7 @@ func (c *transactionControllerImpl) PostTransaction(w http.ResponseWriter, r *ht
 		return
 	}
 
-	transaction, err = c.transactionRepository.Save(transaction)
-
-	if err != nil {
-		utils.WriteError(w, err, http.StatusUnprocessableEntity)
-		return
-	}
+	transaction, err = c.transactionService.Post(transaction)
 
 	if err != nil {
 		utils.WriteError(w, err, http.StatusUnprocessableEntity)
@@ -75,7 +68,7 @@ func (c *transactionControllerImpl) GetTransaction(w http.ResponseWriter, r *htt
 		return
 	}
 
-	transaction, err := c.transactionRepository.Find(transaction_id)
+	transaction, err := c.transactionService.Find(transaction_id)
 	if err != nil {
 		utils.WriteError(w, err, http.StatusInternalServerError)
 		return
@@ -93,7 +86,7 @@ func (c *transactionControllerImpl) GetTransactionPayerId(w http.ResponseWriter,
 		return
 	}
 
-	transaction, err := c.transactionRepository.FindByPayerId(payer_id)
+	transaction, err := c.transactionService.FindByPayerId(payer_id)
 	if err != nil {
 		utils.WriteError(w, err, http.StatusInternalServerError)
 		return
@@ -111,7 +104,7 @@ func (c *transactionControllerImpl) GetTransactionPayeeId(w http.ResponseWriter,
 		return
 	}
 
-	transaction, err := c.transactionRepository.FindByPayeeId(payee_id)
+	transaction, err := c.transactionService.FindByPayeeId(payee_id)
 	if err != nil {
 		utils.WriteError(w, err, http.StatusInternalServerError)
 		return
@@ -122,7 +115,7 @@ func (c *transactionControllerImpl) GetTransactionPayeeId(w http.ResponseWriter,
 
 func (c *transactionControllerImpl) GetTransactions(w http.ResponseWriter, r *http.Request) {
 
-	transaction, err := c.transactionRepository.FindAll()
+	transaction, err := c.transactionService.FindAll()
 	if err != nil {
 		utils.WriteError(w, err, http.StatusInternalServerError)
 		return
@@ -140,7 +133,7 @@ func (c *transactionControllerImpl) Delete(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	err = c.transactionRepository.Delete(transaction_id)
+	err = c.transactionService.Delete(transaction_id)
 	if err != nil {
 		utils.WriteError(w, err, http.StatusInternalServerError)
 		return

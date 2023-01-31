@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/fransqueiroz/go_teste/api/models"
-	"github.com/fransqueiroz/go_teste/api/repository"
+	"github.com/fransqueiroz/go_teste/api/services"
 	"github.com/fransqueiroz/go_teste/api/utils"
 	"github.com/gorilla/mux"
 )
@@ -21,12 +21,11 @@ type UserController interface {
 }
 
 type userControllerImpl struct {
-	userRepository   repository.UserRepository
-	walletRepository repository.WalletRepository
+	userService services.UserService
 }
 
-func NewUserController(userRepository repository.UserRepository, walletRepository repository.WalletRepository) *userControllerImpl {
-	return &userControllerImpl{userRepository, walletRepository}
+func NewUserController(userService services.UserService) *userControllerImpl {
+	return &userControllerImpl{userService}
 }
 
 func (c *userControllerImpl) PostUser(w http.ResponseWriter, r *http.Request) {
@@ -48,44 +47,10 @@ func (c *userControllerImpl) PostUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = user.Validate()
+	user, err = c.userService.Post(user)
 
 	if err != nil {
 		utils.WriteError(w, err, http.StatusBadRequest)
-		return
-	}
-
-	query := "email = '" + user.Email + "'"
-	user_response, err := c.userRepository.GetUserIfExist(query)
-
-	if user.Email == user_response.Email {
-		utils.WriteError(w, err, http.StatusBadRequest)
-		return
-	}
-
-	query = "cpf = '" + user.CPF + "'"
-	user_response, err = c.userRepository.GetUserIfExist(query)
-
-	if user.CPF == user_response.CPF {
-		utils.WriteError(w, err, http.StatusBadRequest)
-		return
-	}
-
-	user, err = c.userRepository.Save(user)
-
-	walletStruct := &models.Wallet{}
-
-	walletStruct.User_id = user.ID
-
-	_, err = c.walletRepository.Save(walletStruct)
-
-	if err != nil {
-		utils.WriteError(w, err, http.StatusUnprocessableEntity)
-		return
-	}
-
-	if err != nil {
-		utils.WriteError(w, err, http.StatusUnprocessableEntity)
 		return
 	}
 
@@ -95,7 +60,7 @@ func (c *userControllerImpl) PostUser(w http.ResponseWriter, r *http.Request) {
 
 func (c *userControllerImpl) GetUsers(w http.ResponseWriter, r *http.Request) {
 
-	user, err := c.userRepository.FindAll()
+	user, err := c.userService.FindAll()
 	if err != nil {
 		utils.WriteError(w, err, http.StatusInternalServerError)
 		return
@@ -113,7 +78,7 @@ func (c *userControllerImpl) GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := c.userRepository.Find(user_id)
+	user, err := c.userService.GetUser(user_id)
 	if err != nil {
 		utils.WriteError(w, err, http.StatusInternalServerError)
 		return
@@ -150,13 +115,8 @@ func (c *userControllerImpl) PutUser(w http.ResponseWriter, r *http.Request) {
 
 	user.ID = user_id
 
-	err = user.Validate()
-	if err != nil {
-		utils.WriteError(w, err, http.StatusBadRequest)
-		return
-	}
+	err = c.userService.Update(user)
 
-	err = c.userRepository.Update(user)
 	if err != nil {
 		utils.WriteError(w, err, http.StatusUnprocessableEntity)
 		return
@@ -174,7 +134,7 @@ func (c *userControllerImpl) DeleteUser(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	err = c.userRepository.Delete(user_id)
+	err = c.userService.Delete(user_id)
 	if err != nil {
 		utils.WriteError(w, err, http.StatusInternalServerError)
 		return

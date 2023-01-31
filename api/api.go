@@ -10,6 +10,7 @@ import (
 	"github.com/fransqueiroz/go_teste/api/database"
 	"github.com/fransqueiroz/go_teste/api/repository"
 	"github.com/fransqueiroz/go_teste/api/routes"
+	"github.com/fransqueiroz/go_teste/api/services"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
@@ -30,10 +31,15 @@ func Run() {
 	walletRepository := repository.NewWalletRepository(db)
 	transactionRepository := repository.NewTransactionRepository(db)
 
+	//Services
+	userService := services.NewUserService(userRepository, walletRepository)
+	walletService := services.NewWalletService(walletRepository)
+	transactionService := services.NewTransactionService(transactionRepository, userRepository, walletRepository)
+
 	//Controllers
-	userController := controllers.NewUserController(userRepository, walletRepository)
-	walletController := controllers.NewWalletController(walletRepository)
-	transactionController := controllers.NewTransactionController(transactionRepository, userRepository, walletRepository)
+	userController := controllers.NewUserController(userService)
+	walletController := controllers.NewWalletController(walletService)
+	transactionController := controllers.NewTransactionController(transactionService)
 
 	//Routes
 	userRoutes := routes.NewUserRoutes(userController)

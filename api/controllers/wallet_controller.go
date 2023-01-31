@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/fransqueiroz/go_teste/api/models"
-	"github.com/fransqueiroz/go_teste/api/repository"
+	"github.com/fransqueiroz/go_teste/api/services"
 	"github.com/fransqueiroz/go_teste/api/utils"
 	"github.com/gorilla/mux"
 )
@@ -22,11 +22,11 @@ type WalletController interface {
 }
 
 type walletControllerImpl struct {
-	walletRepository repository.WalletRepository
+	walletService services.WalletService
 }
 
-func NewWalletController(walletRepository repository.WalletRepository) *walletControllerImpl {
-	return &walletControllerImpl{walletRepository}
+func NewWalletController(walletService services.WalletService) *walletControllerImpl {
+	return &walletControllerImpl{walletService}
 }
 
 func (c *walletControllerImpl) PostWallet(w http.ResponseWriter, r *http.Request) {
@@ -49,15 +49,7 @@ func (c *walletControllerImpl) PostWallet(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	//criar validações
-	err = wallet.Validate()
-
-	if err != nil {
-		utils.WriteError(w, err, http.StatusBadRequest)
-		return
-	}
-
-	wallet, err = c.walletRepository.Save(wallet)
+	wallet, err = c.walletService.Post(wallet)
 	if err != nil {
 		utils.WriteError(w, err, http.StatusUnprocessableEntity)
 		return
@@ -67,7 +59,7 @@ func (c *walletControllerImpl) PostWallet(w http.ResponseWriter, r *http.Request
 }
 
 func (c *walletControllerImpl) GetWallets(w http.ResponseWriter, r *http.Request) {
-	wallet, err := c.walletRepository.FindAll()
+	wallet, err := c.walletService.FindAll()
 	if err != nil {
 		utils.WriteError(w, err, http.StatusInternalServerError)
 		return
@@ -85,7 +77,7 @@ func (c *walletControllerImpl) GetWallet(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	wallet, err := c.walletRepository.Find(wallet_id)
+	wallet, err := c.walletService.Find(wallet_id)
 	if err != nil {
 		utils.WriteError(w, err, http.StatusInternalServerError)
 		return
@@ -103,7 +95,7 @@ func (c *walletControllerImpl) GetWalletByUserId(w http.ResponseWriter, r *http.
 		return
 	}
 
-	wallet, err := c.walletRepository.FindByUserId(user_id)
+	wallet, err := c.walletService.FindByUserId(user_id)
 	if err != nil {
 		utils.WriteError(w, err, http.StatusInternalServerError)
 		return
@@ -139,13 +131,8 @@ func (c *walletControllerImpl) PutWallet(w http.ResponseWriter, r *http.Request)
 	}
 
 	wallet.User_id = user_id
-	err = wallet.Validate()
-	if err != nil {
-		utils.WriteError(w, err, http.StatusBadRequest)
-		return
-	}
 
-	err = c.walletRepository.UpdateByUserId(wallet)
+	err = c.walletService.Update(wallet)
 	if err != nil {
 		utils.WriteError(w, err, http.StatusUnprocessableEntity)
 		return
@@ -163,7 +150,7 @@ func (c *walletControllerImpl) DeleteWallet(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	err = c.walletRepository.Delete(wallet_id)
+	err = c.walletService.Delete(wallet_id)
 	if err != nil {
 		utils.WriteError(w, err, http.StatusInternalServerError)
 		return

@@ -18,6 +18,7 @@ func Connect() *gorm.DB {
 	db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(
 		&models.User{},
 		&models.Wallet{},
+		&models.Transaction{},
 	)
 
 	return db

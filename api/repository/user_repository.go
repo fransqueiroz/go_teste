@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"errors"
 	"time"
 
 	"github.com/fransqueiroz/go_teste/api/models"
@@ -82,8 +81,6 @@ func (r *userRepositoryImpl) Delete(user_id uint64) error {
 func (r *userRepositoryImpl) GetUserIfExist(query string) (*models.User, error) {
 	user := &models.User{}
 	err := r.db.Debug().Model(&models.User{}).Where(query).Find(user).Error
-	if user == user {
-		err = errors.New("User exists")
-	}
+
 	return user, err
 }
