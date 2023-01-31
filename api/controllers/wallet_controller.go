@@ -25,6 +25,8 @@ type walletControllerImpl struct {
 	walletService services.WalletService
 }
 
+type teste struct{}
+
 func NewWalletController(walletService services.WalletService) *walletControllerImpl {
 	return &walletControllerImpl{walletService}
 }

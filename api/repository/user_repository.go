@@ -11,7 +11,7 @@ import (
 type UserRepository interface {
 	Save(*models.User) (*models.User, error)
 	Find(uint64) (*models.User, error)
-	GetUserIfExist(string) (*models.User, error)
+	GetUserForQuery(string) (*models.User, error)
 	FindAll() ([]*models.User, error)
 	Update(*models.User) error
 	Delete(uint64) error
@@ -78,7 +78,7 @@ func (r *userRepositoryImpl) Delete(user_id uint64) error {
 	return tx.Commit().Error
 }
 
-func (r *userRepositoryImpl) GetUserIfExist(query string) (*models.User, error) {
+func (r *userRepositoryImpl) GetUserForQuery(query string) (*models.User, error) {
 	user := &models.User{}
 	err := r.db.Debug().Model(&models.User{}).Where(query).Find(user).Error
 

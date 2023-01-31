@@ -40,7 +40,7 @@ func (r *walletRoutesImpl) Routes() []*Route {
 			Handler: r.walletController.GetWalletByUserId,
 		},
 		{
-			Path:    "/wallet/{wallet_id}",
+			Path:    "/wallet/{user_id}",
 			Method:  http.MethodPut,
 			Handler: r.walletController.PutWallet,
 		},

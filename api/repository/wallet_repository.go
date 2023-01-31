@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/fransqueiroz/go_teste/api/models"
@@ -55,13 +57,19 @@ func (r *walletRepositoryImpl) FindAll() ([]*models.Wallet, error) {
 func (r *walletRepositoryImpl) UpdateByUserId(wallet *models.Wallet) error {
 	tx := r.db.Begin()
 
+	value_stg := fmt.Sprintf("%.2f", wallet.Value)
+
+	value, err := strconv.ParseFloat(value_stg, 32)
+
+	fmt.Println(value_stg, value, wallet.Value)
+
 	columns := map[string]interface{}{
 		"user_id":    wallet.User_id,
-		"value":      wallet.Value,
+		"value":      value,
 		"updated_at": time.Now(),
 	}
 
-	err := tx.Debug().Model(&models.Wallet{}).Where("user_id = ?", wallet.User_id).UpdateColumns(columns).Error
+	err = tx.Debug().Model(&models.Wallet{}).Where("user_id = ?", wallet.User_id).UpdateColumns(columns).Error
 	if err != nil {
 		tx.Rollback()
 		return err

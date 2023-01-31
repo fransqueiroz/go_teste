@@ -13,6 +13,7 @@ import (
 	"github.com/fransqueiroz/go_teste/api/services"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 )
 
 var (
@@ -24,6 +25,12 @@ func Run() {
 	db := database.Connect()
 	if db != nil {
 		defer db.Close()
+	}
+
+	err := godotenv.Load(".env")
+
+	if err != nil {
+		log.Fatal("Error loading .env file")
 	}
 
 	//Repositorys

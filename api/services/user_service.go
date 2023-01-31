@@ -60,14 +60,14 @@ func (s *userServiceImpl) Post(user *models.User) (*models.User, error) {
 	var ErrUserExists = errors.New("user already registered")
 
 	query := "email = '" + user.Email + "'"
-	user_response, _ := s.userRepository.GetUserIfExist(query)
+	user_response, _ := s.userRepository.GetUserForQuery(query)
 
 	if user.Email == user_response.Email {
 		return user, ErrUserExists
 	}
 
 	query = "cpf = '" + user.CPF + "'"
-	user_response, _ = s.userRepository.GetUserIfExist(query)
+	user_response, _ = s.userRepository.GetUserForQuery(query)
 
 	if user.CPF == user_response.CPF {
 		return user, ErrUserExists

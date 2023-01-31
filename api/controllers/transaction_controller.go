@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -48,7 +49,15 @@ func (c *transactionControllerImpl) PostTransaction(w http.ResponseWriter, r *ht
 		return
 	}
 
-	transaction, err = c.transactionService.Post(transaction)
+	mockValidation := utils.TransactionValidate()
+
+	if mockValidation {
+		transaction, err = c.transactionService.Post(transaction)
+	} else {
+		err = errors.New("Unauthorized Transaction")
+		utils.WriteError(w, err, http.StatusForbidden)
+		return
+	}
 
 	if err != nil {
 		utils.WriteError(w, err, http.StatusUnprocessableEntity)
