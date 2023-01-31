@@ -1,6 +1,9 @@
 package services
 
 import (
+	"fmt"
+	"strconv"
+
 	"github.com/fransqueiroz/go_teste/api/models"
 	"github.com/fransqueiroz/go_teste/api/repository"
 )
@@ -48,7 +51,22 @@ func (s *walletServiceImpl) FindAll() ([]*models.Wallet, error) {
 }
 
 func (s *walletServiceImpl) Update(wallet *models.Wallet) error {
-	err := s.walletRepository.UpdateByUserId(wallet)
+
+	user_id := wallet.User_id
+	wallet_user, err := s.walletRepository.FindByUserId(user_id)
+	if err != nil {
+		return err
+	}
+
+	balance := float32(wallet_user.Value) + float32(wallet.Value)
+
+	value_stg := fmt.Sprintf("%.2f", balance)
+
+	value, err := strconv.ParseFloat(value_stg, 32)
+
+	wallet.Value = float32(value)
+
+	err = s.walletRepository.UpdateByUserId(wallet)
 	return err
 }
 
