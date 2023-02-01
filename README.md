@@ -20,6 +20,10 @@ Entre no diretório do projeto
 
 Crie o arquivo .env com a URL do MOCK para autenticação
 
+```json
+MOCK_URL = ""
+```
+
 Inicie a aplicação com
 
 ```bash
